@@ -1,0 +1,162 @@
+Importing Necessary Libraries
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from xgboost import XGBRegressor
+from sklearn .model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import r2_score, mean_squared_error , mean_absolute_error
+from sklearn.preprocessing import MinMaxScaler
+
+Data Cleaning
+
+data = pd.read_csv("smartphones.csv")
+data.head()
+data.describe().round(3).T
+data.shape
+data.info()
+
+data.isna().sum()
+data['RAM'].value_counts()
+plt.title("Disribute of RAM")
+sns.set_palette("deep")
+sns.countplot(data=data, x="RAM")
+plt.xlabel("Type of RAM")
+plt.ylabel("Count")
+plt.show()
+data['Storage'].value_counts()
+plt.title("Disribute of Storage")
+sns.set_palette("deep")
+sns.countplot(data=data, x="Storage")
+plt.xlabel("Type of Storage")
+plt.ylabel("Count")
+plt.show()
+ram_mode = data.RAM.mode()
+storage_mode = data.Storage.mode()
+print("the mode of RAM is : ", ram_mode[0])
+print("the mode of Storage is : ", storage_mode[0])
+data.RAM.fillna(ram_mode[0], inplace = True)
+data.Storage.fillna(storage_mode[0], inplace = True)
+data.isna().sum()
+data.drop(columns='Smartphone' , inplace= True)
+data.duplicated().sum()
+data.drop_duplicates(inplace = True)
+data.info()
+
+Exploratory Data Analysis
+
+data.Brand.value_counts()[0:10]
+plt.figure(figsize=(10,5))
+plt.title("Distribute of Top 10 Brands")
+figure = sns.barplot(x=data.Brand.value_counts()[0:10].index ,y= data.Brand.value_counts()[0:10].values)
+for cotain in figure.containers :
+    figure.bar_label(cotain)
+plt.xlabel("Brands")
+plt.ylabel("Frequance")
+plt.show()
+columns = ["Brand", "Model", "RAM", "Storage", "Color", "Free"]
+
+for column in columns:
+    avg_final_price_per_category = data.groupby(column)["Final Price"].mean().reset_index()
+
+    top_10_categories = avg_final_price_per_category.nlargest(10, "Final Price")
+
+    plt.figure(figsize=(10, 6))
+    sns.barplot(data=top_10_categories, x=column, y="Final Price")
+    plt.title(f"Top 10 {column} vs. Final Price")
+    plt.xlabel(column)
+    plt.ylabel("Avr Final Price")
+    plt.xticks(rotation=45)
+    plt.show()
+
+Model Building And Evaluation
+
+columns_to_process = ['Brand', 'Color', 'Model', 'Free']  # Columns to process
+for column in columns_to_process:
+    # Calculate frequency
+    freq_dict = data[column].value_counts(normalize=True).to_dict()
+
+    # Create new column with frequency
+    data[f'{column.lower()}_freq'] = data[column].map(freq_dict)
+
+    # Drop original column
+    data.drop(columns=[column], inplace=True)
+
+data.info()
+sc = MinMaxScaler()
+data.RAM = data.RAM.astype("float")
+data.Storage = data.Storage.astype("float")
+numerical_columns = ['RAM' , 'Storage']
+data[numerical_columns] = sc.fit_transform(data[numerical_columns])
+print(data)
+
+Modelling
+
+model1 = LinearRegression()
+model2 =XGBRegressor ()
+model3=RandomForestRegressor(max_depth=None, min_samples_leaf=1, min_samples_split=10, n_estimators=150, random_state=42)
+
+X = data.drop('Final Price', axis=1)
+y = data['Final Price']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model1.fit(X_train ,y_train)
+model1.fit(X_train ,y_train)
+y_pred = model1.predict(X_test)
+y_prdict_train =model1.predict(X_train)
+r2_train = r2_score(y_train, y_prdict_train)
+
+r2_test = r2_score(y_test, y_pred)
+print(f'R2 Score for train: {r2_train:.4f}')
+print(f'R2 Score for test: {r2_test:.4f}')
+
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, y_pred)
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red')
+plt.xlabel('Actual Final Price')
+plt.ylabel('Predicted Final Price')
+plt.title('LinearRegression - Actual vs Predicted')
+plt.show()
+
+model2.fit(X_train ,y_train)
+y_pred = model2.predict(X_test)
+y_prdict_train =model2.predict(X_train)
+r2_train = r2_score(y_train, y_prdict_train)
+
+r2_test = r2_score(y_test, y_pred)
+print(f'R2 Score for train: {r2_train:.4f}')
+print(f'R2 Score for test: {r2_test:.4f}')
+
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, y_pred)
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red')
+plt.xlabel('Actual Final Price')
+plt.ylabel('Predicted Final Price')
+plt.title('XGBRegressor - Actual vs Predicted')
+plt.show()
+
+model3.fit(X_train, y_train)
+y_pred = model3.predict(X_test)
+
+r2 = r2_score(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+mae = mean_absolute_error(y_test, y_pred)
+
+print("Random Forest Regressor with specified hyperparameters:")
+print(f'R2 Score: {r2:.4f}')
+print(f'Mean Squared Error: {mse:.4f}\n')
+print(f'Mean Absolute Error: {mae:.4f}\n')
+
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, y_pred)
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], linestyle='--', color='red')
+plt.xlabel('Actual Final Price')
+plt.ylabel('Predicted Final Price')
+plt.title('Random Forest Regressor - Actual vs Predicted')
+plt.show()
+
+

@@ -1,0 +1,20 @@
+Here's an interpretation of the results obtained from the three regression models:
+
+Linear Regression:
+The model explains around 66.59% of the variance in the target variable on the training data.
+The R-squared score for the test set (0.6685) indicates decent generalization.
+The relatively lower scores compared to other models suggest that the linear relationship might not fully capture the data's complexity.
+XGBoostRegressor:
+It explains a significant portion (94.41%) of the variance in the target variable on the training data.
+While the test set R-squared score is slightly lower, it still performs well, indicating good generalization.
+The high R-squared values suggest that it captures a substantial amount of variability.
+RandomForestRegressor:
+The MSE provides insight into the model's average predictive error on the test set.Comparing MSE with other models helps assess relative performance.
+
+The R-squared score for the test set (0.8208) indicates decent generalization.
+
+The relatively higher scores compared to Lineer Regression model. But for the XGBoostRegressor, it's lower scores suggest that the linear relationship might not fully capture the data's complexity.
+
+Overall Assessment:
+
+XGBoostRegressor stands out as the best-performing model with high R-squared values and good generalization.
